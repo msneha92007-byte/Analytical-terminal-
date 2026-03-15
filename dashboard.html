@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeoDash • interactive navigation</title>
+  <!-- Google Font & Font Awesome for icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #eef2f7 0%, #f9fcff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* modern header with glassmorphism touch */
+    .header {
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 20px rgba(0,20,50,0.06);
+      padding: 0.9rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.6);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header h1 {
+      font-weight: 600;
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #1e2b4f, #2c3e6e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header h1 i {
+      background: linear-gradient(135deg, #3a5f8b, #1f3a5f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 2rem;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .avatar {
+      background: linear-gradient(145deg, #2b4a7a, #1d3557);
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 1.2rem;
+      box-shadow: 0 6px 12px rgba(27, 45, 75, 0.25);
+      cursor: default;
+    }
+
+    .logout {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(72, 99, 144, 0.2);
+      color: #1f3a5f;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.25s ease;
+      box-shadow: 0 4px 10px rgba(0, 20, 40, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logout i {
+      font-size: 1rem;
+      transition: transform 0.2s;
+    }
+
+    .logout:hover {
+      background: #1f3a5f;
+      color: white;
+      border-color: #1f3a5f;
+      box-shadow: 0 8px 18px rgba(27, 55, 96, 0.25);
+    }
+
+    .logout:hover i {
+      transform: translateX(3px);
+    }
+
+    /* main dashboard grid – now with sidebar */
+    .dashboard-wrapper {
+      display: flex;
+      flex: 1;
+      padding: 2rem 2rem 2rem 1.5rem;
+      gap: 24px;
+    }
+
+    /* sleek sidebar – now with interactive links */
+    .side-nav {
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 32px;
+      padding: 2rem 1.2rem;
+      width: 260px;
+      box-shadow: 0 20px 35px -5px rgba(0,30,60,0.12);
+      border: 1px solid rgba(255,255,255,0.7);
+      height: fit-content;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      margin: 6px 0;
+      border-radius: 20px;
+      color: #2e405b;
+      font-weight: 500;
+      transition: 0.2s;
+      text-decoration: none;
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-size: 1rem;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-item i {
+      width: 28px;
+      font-size: 1.3rem;
+      color: #2c4c7a;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(115deg, #ffffffd6, #ffffff);
+      box-shadow: 0 6px 14px rgba(45, 80, 120, 0.15);
+      color: #1b2f4c;
+      font-weight: 600;
+      border-left: 4px solid #2b4a7a;
+    }
+
+    .nav-item:not(.active):hover {
+      background: rgba(255,255,255,0.7);
+      transform: translateX(4px);
+    }
+
+    /* main content – cards grid */
+    .main-content {
+      flex: 1;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 26px;
+    }
+
+    /* card design with depth */
+    .card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(4px);
+      border-radius: 32px;
+      padding: 1.8rem 1.5rem;
+      box-shadow: 0 20px 35px -10px rgba(21, 45, 75, 0.15);
+      border: 1px solid rgba(255,255,255,0.7);
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(2px);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 28px 40px -12px rgba(10, 40, 80, 0.25);
+      border-color: #ffffff;
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 1.2rem;
+    }
+
+    .card-header i {
+      font-size: 2.3rem;
+      background: linear-gradient(145deg, #1e3b5a, #2b5580);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card h2 {
+      font-size: 1.7rem;
+      font-weight: 600;
+      color: #152b44;
+      letter-spacing: -0.3px;
+    }
+
+    .card p {
+      color: #4f658a;
+      line-height: 1.5;
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+    }
+
+    /* stat row */
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 15px;
+      border-top: 2px dashed rgba(100, 130, 180, 0.2);
+      font-weight: 500;
+    }
+
+    .stat-badge {
+      background: linear-gradient(135deg, #ebf3ff, #dde9fc);
+      padding: 8px 16px;
+      border-radius: 40px;
+      color: #1d3f6e;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-icon {
+      background: #2b4a7a;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    /* mini progress for simulation card */
+    .sim-progress {
+      background: #e6edf8;
+      border-radius: 40px;
+      height: 12px;
+      width: 100%;
+      margin: 15px 0 8px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 68%;
+      height: 100%;
+      background: linear-gradient(90deg, #2b4a7a, #4f7eb3);
+      border-radius: 40px;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
+    }
+
+    /* quick actions / explore links */
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .action-chip {
+      background: white;
+      border-radius: 40px;
+      padding: 8px 18px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #1b3c61;
+      border: 1px solid rgba(60, 100, 150, 0.2);
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .action-chip i {
+      font-size: 0.9rem;
+      color: #2b4a7a;
+    }
+
+    .action-chip:hover {
+      background: #1b3c61;
+      color: white;
+      border-color: #1b3c61;
+    }
+
+    .action-chip:hover i {
+      color: white;
+    }
+
+    /* footnote */
+    .footnote {
+      margin-top: 40px;
+      text-align: center;
+      color: #6c7f9f;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(5px);
+      padding: 1rem;
+      border-radius: 60px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .footnote i {
+      color: #c12b2b;
+    }
+
+    /* responsive */
+    @media (max-width: 850px) {
+      .dashboard-wrapper {
+        flex-direction: column;
+        padding: 1.5rem;
+      }
+      .side-nav {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        padding: 1rem;
+      }
+      .nav-item {
+        flex: 1 0 auto;
+        justify-content: center;
+      }
+    }
+
+    /* fade animation */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card {
+      animation: fadeInUp 0.4s ease forwards;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <h1>
+    <i class="fas fa-rocket"></i> 
+    <span>NeoDash</span>
+  </h1>
+  <div class="user-profile">
+    <div class="avatar">JD</div>
+    <button class="logout" onclick="logout()">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
+  </div>
+</header>
+
+<div class="dashboard-wrapper">
+  <!-- side navigation – now all items are clickable links (or buttons) that lead to further options -->
+  <nav class="side-nav">
+    <a href="#" class="nav-item active" onclick="handleNavClick(event, 'overview')">
+      <i class="fas fa-chart-pie"></i> <span>Overview</span>
+    </a>
+    <a href="#" class="nav-item" onclick="handleNavClick(event, 'citysim')">
+      <i class="fas fa-car-side"></i> <span>City Sim</span>
+    </a>
+    <a href="#" class="nav-item" onclick="handleNavClick(event, 'livedata')">
+      <i class="fas fa-database"></i> <span>Live data</span>
+    </a>
+    <a href="#" class="nav-item" onclick="handleNavClick(event, 'settings')">
+      <i class="fas fa-sliders-h"></i> <span>Settings</span>
+    </a>
+    <a href="#" class="nav-item" onclick="handleNavClick(event, 'reports')">
+      <i class="fas fa-history"></i> <span>Reports</span>
+    </a>
+  </nav>
+
+  <!-- main card area -->
+  <main class="main-content">
+    <div class="dashboard-grid">
+      <!-- card 1 – Live data with explore link -->
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-satellite-dish"></i>
+          <h2>Live data</h2>
+        </div>
+        <p>Real‑time city metrics & streaming analytics.</p>
+        <div class="stat-row">
+          <span class="stat-badge"><span class="badge-icon">📡</span> 1.4k events/s</span>
+          <span class="stat-badge"><span class="badge-icon">🌡️</span> 22°C</span>
+        </div>
+        <!-- "Further options" link inside card -->
+        <div class="quick-actions">
+          <a href="#" class="action-chip" onclick="handleExplore(event, 'live data details')">
+            <i class="fas fa-chart-line"></i> View graphs <i class="fas fa-arrow-right"></i>
+          </a>
+          <a href="#" class="action-chip" onclick="handleExplore(event, 'live data export')">
+            <i class="fas fa-download"></i> Export
+          </a>
+        </div>
+      </div>
+
+      <!-- card 2 – City simulation with explore link -->
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-map-marked-alt"></i>
+          <h2>City simulation</h2>
+        </div>
+        <p>Autorickshaw fleet · route optimization challenge.</p>
+        <div class="sim-progress">
+          <div class="progress-fill"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; color:#1f3a5f; margin-bottom: 12px;">
+          <span><i class="fas fa-flag-checkered"></i> 68% simulated</span>
+          <span><i class="fas fa-clock"></i> 4 min left</span>
+        </div>
+        <!-- "Further options" link -->
+        <div class="quick-actions">
+          <a href="#" class="action-chip" onclick="handleExplore(event, 'city simulation details')">
+            <i class="fas fa-route"></i> Explore routes <i class="fas fa-arrow-right"></i>
+          </a>
+          <a href="#" class="action-chip" onclick="handleExplore(event, 'fleet management')">
+            <i class="fas fa-truck"></i> Manage fleet
+          </a>
+        </div>
+      </div>
+
+      <!-- card 3 – Settings with profile & further options -->
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-user-cog"></i>
+          <h2>Settings</h2>
+        </div>
+        <p>Profile, preferences & notification controls.</p>
+        <div style="display: flex; gap: 16px; margin: 0.5rem 0 1rem;">
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 0.85rem; color:#3d5f8c;">MODE</span>
+            <span style="font-weight: 600;"><i class="fas fa-moon" style="margin-right: 6px;"></i> Dark system</span>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 0.85rem; color:#3d5f8c;">LANGUAGE</span>
+            <span style="font-weight: 600;">EN <i class="fas fa-globe"></i></span>
+          </div>
+        </div>
+        <!-- "Further options" links -->
+        <div class="quick-actions">
+          <a href="#" class="action-chip" onclick="handleExplore(event, 'edit profile')">
+            <i class="fas fa-user-edit"></i> Edit profile
+          </a>
+          <a href="#" class="action-chip" onclick="handleExplore(event, 'notifications settings')">
+            <i class="fas fa-bell"></i> Notifications
+          </a>
+          <a href="#" class="action-chip" onclick="handleExplore(event, 'privacy settings')">
+            <i class="fas fa-lock"></i> Privacy
+          </a>
+        </div>
+      </div>
+
+      <!-- extra card: recent activity with "view all" further option -->
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-list-ul"></i>
+          <h2>Activity</h2>
+        </div>
+        <ul style="list-style: none; color: #2a405e;">
+          <li style="padding: 8px 0; display: flex; gap:12px;"><i class="fas fa-circle" style="font-size: 0.5rem; align-self: center; color: #3f77bb;"></i> Trip #2291 completed <span style="margin-left: auto; font-size:0.8rem;">2 min ago</span></li>
+          <li style="padding: 8px 0; display: flex; gap:12px;"><i class="fas fa-circle" style="font-size: 0.5rem; align-self: center; color: #3f77bb;"></i> New driver onboarded <span style="margin-left: auto; font-size:0.8rem;">1h ago</span></li>
+          <li style="padding: 8px 0; display: flex; gap:12px;"><i class="fas fa-circle" style="font-size: 0.5rem; align-self: center; color: #3f77bb;"></i> Zone C congestion alert <span style="margin-left: auto; font-size:0.8rem;">12:30</span></li>
+        </ul>
+        <!-- "Further options" link -->
+        <a href="#" class="action-chip" style="margin-top: 10px; width: fit-content;" onclick="handleExplore(event, 'full activity log')">
+          <i class="fas-regular fa-eye"></i> view all activity <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- footnote / live status -->
+    <div class="footnote">
+      <i class="fas fa-circle" style="color: #28a745; font-size: 0.6rem;"></i> 
+      <span>all systems operational · last sync 2 seconds ago</span>
+      <i class="fas fa-bolt" style="color: #ffb83b;"></i>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Handle navigation clicks (sidebar)
+  function handleNavClick(event, section) {
+    event.preventDefault();  // prevent page jump
+    // Remove active class from all nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    // Add active class to clicked item
+    event.currentTarget.classList.add('active');
+    // Simulate navigation to further options
+    alert(`📂 Navigating to ${section} section (further options would appear here).`);
+    // In a real app, you'd load content or redirect.
+  }
+
+  // Handle explore links inside cards
+  function handleExplore(event, detail) {
+    event.preventDefault();
+    alert(`🔍 Exploring: ${detail} – here you would see more options and detailed views.`);
+  }
+
+  // Logout function
+  function logout() {
+    if (confirm('Ready to leave? See you next time!')) {
+      alert('🔒 You have been securely logged out. (demo)');
+    }
+  }
+
+  // Optional: make entire card clickable? Not needed, we have explicit links.
+  // But we can keep the card hover effect.
+</script>
+
+</body>
+</html>
