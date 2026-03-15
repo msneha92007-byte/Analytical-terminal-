@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeoDash • interactive navigation</title>
-  <!-- Google Font & Font Awesome for icons -->
+  <title>NeoDash • interactive dashboard</title>
+  <!-- Google Font & Font Awesome for crisp icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -120,7 +120,7 @@
       gap: 24px;
     }
 
-    /* sleek sidebar – now with interactive links */
+    /* sleek sidebar */
     .side-nav {
       background: rgba(255,255,255,0.6);
       backdrop-filter: blur(12px);
@@ -143,13 +143,7 @@
       color: #2e405b;
       font-weight: 500;
       transition: 0.2s;
-      text-decoration: none;
-      width: 100%;
-      border: none;
-      background: transparent;
-      font-size: 1rem;
-      text-align: left;
-      cursor: pointer;
+      cursor: default;
     }
 
     .nav-item i {
@@ -193,6 +187,7 @@
       transition: all 0.25s ease;
       display: flex;
       flex-direction: column;
+      cursor: default;
       backdrop-filter: blur(2px);
     }
 
@@ -231,7 +226,7 @@
       margin-bottom: 1.5rem;
     }
 
-    /* stat row */
+    /* extra stats / mini widgets inside cards */
     .stat-row {
       display: flex;
       justify-content: space-between;
@@ -282,7 +277,7 @@
       box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
     }
 
-    /* quick actions / explore links */
+    /* additional small cards / quick actions */
     .quick-actions {
       display: flex;
       flex-wrap: wrap;
@@ -299,11 +294,9 @@
       color: #1b3c61;
       border: 1px solid rgba(60, 100, 150, 0.2);
       transition: 0.15s;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       gap: 8px;
-      text-decoration: none;
-      cursor: pointer;
     }
 
     .action-chip i {
@@ -321,7 +314,7 @@
       color: white;
     }
 
-    /* footnote */
+    /* footer extra */
     .footnote {
       margin-top: 40px;
       text-align: center;
@@ -362,15 +355,6 @@
         justify-content: center;
       }
     }
-
-    /* fade animation */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .card {
-      animation: fadeInUp 0.4s ease forwards;
-    }
   </style>
 </head>
 <body>
@@ -389,29 +373,29 @@
 </header>
 
 <div class="dashboard-wrapper">
-  <!-- side navigation – now all items are clickable links (or buttons) that lead to further options -->
+  <!-- side navigation – adds interest -->
   <nav class="side-nav">
-    <a href="#" class="nav-item active" onclick="handleNavClick(event, 'overview')">
+    <div class="nav-item active">
       <i class="fas fa-chart-pie"></i> <span>Overview</span>
-    </a>
-    <a href="#" class="nav-item" onclick="handleNavClick(event, 'citysim')">
+    </div>
+    <div class="nav-item">
       <i class="fas fa-car-side"></i> <span>City Sim</span>
-    </a>
-    <a href="#" class="nav-item" onclick="handleNavClick(event, 'livedata')">
+    </div>
+    <div class="nav-item">
       <i class="fas fa-database"></i> <span>Live data</span>
-    </a>
-    <a href="#" class="nav-item" onclick="handleNavClick(event, 'settings')">
+    </div>
+    <div class="nav-item">
       <i class="fas fa-sliders-h"></i> <span>Settings</span>
-    </a>
-    <a href="#" class="nav-item" onclick="handleNavClick(event, 'reports')">
+    </div>
+    <div class="nav-item">
       <i class="fas fa-history"></i> <span>Reports</span>
-    </a>
+    </div>
   </nav>
 
   <!-- main card area -->
   <main class="main-content">
     <div class="dashboard-grid">
-      <!-- card 1 – Live data with explore link -->
+      <!-- card 1 – live data enhanced -->
       <div class="card">
         <div class="card-header">
           <i class="fas fa-satellite-dish"></i>
@@ -422,24 +406,20 @@
           <span class="stat-badge"><span class="badge-icon">📡</span> 1.4k events/s</span>
           <span class="stat-badge"><span class="badge-icon">🌡️</span> 22°C</span>
         </div>
-        <!-- "Further options" link inside card -->
         <div class="quick-actions">
-          <a href="#" class="action-chip" onclick="handleExplore(event, 'live data details')">
-            <i class="fas fa-chart-line"></i> View graphs <i class="fas fa-arrow-right"></i>
-          </a>
-          <a href="#" class="action-chip" onclick="handleExplore(event, 'live data export')">
-            <i class="fas fa-download"></i> Export
-          </a>
+          <span class="action-chip"><i class="fas fa-chart-line"></i> View graph</span>
+          <span class="action-chip"><i class="fas fa-download"></i> Export</span>
         </div>
       </div>
 
-      <!-- card 2 – City simulation with explore link -->
+      <!-- card 2 – city simulation with more detail -->
       <div class="card">
         <div class="card-header">
           <i class="fas fa-map-marked-alt"></i>
           <h2>City simulation</h2>
         </div>
         <p>Autorickshaw fleet · route optimization challenge.</p>
+        <!-- progress indicator -->
         <div class="sim-progress">
           <div class="progress-fill"></div>
         </div>
@@ -447,18 +427,13 @@
           <span><i class="fas fa-flag-checkered"></i> 68% simulated</span>
           <span><i class="fas fa-clock"></i> 4 min left</span>
         </div>
-        <!-- "Further options" link -->
-        <div class="quick-actions">
-          <a href="#" class="action-chip" onclick="handleExplore(event, 'city simulation details')">
-            <i class="fas fa-route"></i> Explore routes <i class="fas fa-arrow-right"></i>
-          </a>
-          <a href="#" class="action-chip" onclick="handleExplore(event, 'fleet management')">
-            <i class="fas fa-truck"></i> Manage fleet
-          </a>
+        <div class="stat-row" style="border-top-color: rgba(100,130,180,0.1);">
+          <span><i class="fas fa-taxi"></i> 1,240 rickshaws</span>
+          <span><i class="fas fa-road"></i> 89 km/h avg</span>
         </div>
       </div>
 
-      <!-- card 3 – Settings with profile & further options -->
+      <!-- card 3 – settings but with profile summary & toggles (more interactive) -->
       <div class="card">
         <div class="card-header">
           <i class="fas fa-user-cog"></i>
@@ -475,21 +450,14 @@
             <span style="font-weight: 600;">EN <i class="fas fa-globe"></i></span>
           </div>
         </div>
-        <!-- "Further options" links -->
         <div class="quick-actions">
-          <a href="#" class="action-chip" onclick="handleExplore(event, 'edit profile')">
-            <i class="fas fa-user-edit"></i> Edit profile
-          </a>
-          <a href="#" class="action-chip" onclick="handleExplore(event, 'notifications settings')">
-            <i class="fas fa-bell"></i> Notifications
-          </a>
-          <a href="#" class="action-chip" onclick="handleExplore(event, 'privacy settings')">
-            <i class="fas fa-lock"></i> Privacy
-          </a>
+          <span class="action-chip"><i class="fas fa-user-edit"></i> Edit profile</span>
+          <span class="action-chip"><i class="fas fa-bell"></i> Notifications</span>
+          <span class="action-chip"><i class="fas fa-lock"></i> Privacy</span>
         </div>
       </div>
 
-      <!-- extra card: recent activity with "view all" further option -->
+      <!-- extra card: recent activity – makes it more dashboard-like -->
       <div class="card">
         <div class="card-header">
           <i class="fas fa-list-ul"></i>
@@ -500,10 +468,7 @@
           <li style="padding: 8px 0; display: flex; gap:12px;"><i class="fas fa-circle" style="font-size: 0.5rem; align-self: center; color: #3f77bb;"></i> New driver onboarded <span style="margin-left: auto; font-size:0.8rem;">1h ago</span></li>
           <li style="padding: 8px 0; display: flex; gap:12px;"><i class="fas fa-circle" style="font-size: 0.5rem; align-self: center; color: #3f77bb;"></i> Zone C congestion alert <span style="margin-left: auto; font-size:0.8rem;">12:30</span></li>
         </ul>
-        <!-- "Further options" link -->
-        <a href="#" class="action-chip" style="margin-top: 10px; width: fit-content;" onclick="handleExplore(event, 'full activity log')">
-          <i class="fas-regular fa-eye"></i> view all activity <i class="fas fa-arrow-right"></i>
-        </a>
+        <span class="action-chip" style="margin-top: 10px; width: fit-content;"><i class="fas-regular fa-eye"></i> view all</span>
       </div>
     </div>
 
@@ -516,37 +481,46 @@
   </main>
 </div>
 
+<!-- improved logout function with feedback -->
 <script>
-  // Handle navigation clicks (sidebar)
-  function handleNavClick(event, section) {
-    event.preventDefault();  // prevent page jump
-    // Remove active class from all nav items
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.remove('active');
-    });
-    // Add active class to clicked item
-    event.currentTarget.classList.add('active');
-    // Simulate navigation to further options
-    alert(`📂 Navigating to ${section} section (further options would appear here).`);
-    // In a real app, you'd load content or redirect.
-  }
-
-  // Handle explore links inside cards
-  function handleExplore(event, detail) {
-    event.preventDefault();
-    alert(`🔍 Exploring: ${detail} – here you would see more options and detailed views.`);
-  }
-
-  // Logout function
   function logout() {
+    // attractive logout interaction
     if (confirm('Ready to leave? See you next time!')) {
+      // in a real app you'd redirect, but we'll show a nice alert
       alert('🔒 You have been securely logged out. (demo)');
+      // optionally redirect (for demonstration, we just reload the page? but better to simulate)
+      // window.location.href = '/login'; 
+    } else {
+      // user cancelled
     }
   }
 
-  // Optional: make entire card clickable? Not needed, we have explicit links.
-  // But we can keep the card hover effect.
+  // tiny extra: smooth card animation on load (just for fun)
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.card').forEach((card, index) => {
+      card.style.animation = fadeInUp 0.4s ease forwards ${index * 0.05}s;
+    });
+  });
 </script>
 
+<style>
+  /* simple fade animation */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .card {
+    opacity: 0; /* hidden until animation */
+    animation: fadeInUp 0.4s ease forwards;
+  }
+  /* ensure all cards become visible (fallback) */
+  .card { opacity: 1; } /* in case JS fails, they're visible; but animation still runs */
+</style>
 </body>
 </html>
