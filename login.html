@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dark terminal · login</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: #0b0f15;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.2rem;
+      position: relative;
+      /* deep cosmic gradient + subtle grain */
+      background-image: 
+        radial-gradient(circle at 30% 40%, #1a2f3f 0%, #030609 70%),
+        repeating-linear-gradient(45deg, rgba(0,40,50,0.1) 0px, rgba(0,40,50,0.1) 2px, transparent 2px, transparent 6px);
+    }
+
+    /* extra overlay for depth */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc0IiBudW1PY3RhdmVzPSIzIiAvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNmKSIgb3BhY2l0eT0iMC4wMjUiIC8+PC9zdmc+');
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .login-box {
+      background: rgba(12, 22, 28, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 40px;
+      padding: 2.8rem 2.2rem;
+      border: 1px solid rgba(0, 255, 255, 0.15);
+      box-shadow: 
+        0 30px 50px -20px #000000,
+        0 0 0 1px rgba(0, 255, 255, 0.1) inset,
+        0 0 40px -10px #00aaff40;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .login-box:hover {
+      box-shadow: 
+        0 35px 60px -25px #030c10,
+        0 0 0 1.5px rgba(0, 200, 210, 0.3) inset,
+        0 0 60px -8px #1ad2ff70;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      font-weight: 400;
+      color: #c7ecf0;
+      text-shadow: 0 0 10px #25c0d0, 0 0 20px #1a8b9e;
+      letter-spacing: -0.5px;
+      margin-bottom: 2.4rem;
+      border-left: 5px solid #1ac8d4;
+      padding-left: 1.3rem;
+    }
+
+    /* input groups – floating label in dark mode */
+    .input-box {
+      position: relative;
+      margin-bottom: 2.2rem;
+    }
+
+    .input-box input {
+      width: 100%;
+      background: rgba(0, 20, 30, 0.6);
+      border: 1.8px solid #1e5868;
+      border-radius: 24px;
+      padding: 1.2rem 1.2rem 0.4rem 1.2rem;
+      font-size: 1.1rem;
+      color: #ebf5fa;
+      outline: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 6px 12px -8px #000, inset 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    .input-box input:focus {
+      border-color: #30e0ff;
+      background: rgba(0, 30, 40, 0.8);
+      box-shadow: 0 0 0 3px rgba(0, 230, 255, 0.15), 0 8px 18px -10px #000;
+    }
+
+    /* floating label – dark mode optimized */
+    .input-box label {
+      position: absolute;
+      left: 1.2rem;
+      top: 1.2rem;
+      color: #9bbdc9;
+      font-size: 1rem;
+      font-weight: 350;
+      pointer-events: none;
+      transition: 0.2s ease;
+      padding: 0 4px;
+      text-shadow: 0 1px 2px black;
+    }
+
+    .input-box input:focus ~ label,
+    .input-box input:valid ~ label {
+      top: 0.35rem;
+      left: 1rem;
+      font-size: 0.75rem;
+      color: #7ae2ff;
+      background: #0a232e;
+      padding: 0 8px;
+      border-radius: 30px;
+      backdrop-filter: blur(4px);
+      letter-spacing: 0.8px;
+      text-shadow: 0 1px 3px #000;
+      border: 1px solid #2d96b0;
+    }
+
+    /* button – attractive glowing accent */
+    button[type="submit"] {
+      width: 100%;
+      background: linear-gradient(125deg, #1188aa, #0b5e7a);
+      border: none;
+      padding: 1rem;
+      border-radius: 60px;
+      color: white;
+      font-size: 1.4rem;
+      font-weight: 500;
+      letter-spacing: 2px;
+      cursor: pointer;
+      box-shadow: 
+        0 12px 28px -12px #000,
+        0 0 0 1px #30d0e0 inset,
+        0 0 15px #0ff3;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+      border: 1px solid #4fd5e6;
+    }
+
+    button[type="submit"]:hover {
+      background: linear-gradient(125deg, #139fc9, #0e6d8f);
+      box-shadow: 
+        0 18px 32px -12px #00161f,
+        0 0 0 2px #5deeff inset,
+        0 0 35px #1ad4ff;
+      transform: scale(1.02);
+      letter-spacing: 3px;
+    }
+
+    button[type="submit"]:active {
+      transform: scale(0.98);
+      background: #0d6585;
+    }
+
+    .register {
+      text-align: center;
+      margin-top: 2.2rem;
+      color: #a3cad6;
+      font-size: 1rem;
+      border-top: 1px solid #226277;
+      padding-top: 1.5rem;
+    }
+
+    .register a {
+      color: #9eeaff;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 6px;
+      border-bottom: 1px solid transparent;
+      transition: 0.2s;
+      text-shadow: 0 0 6px #3fb4d0;
+    }
+
+    .register a:hover {
+      color: #d4f4ff;
+      border-bottom-color: #5ec8e0;
+    }
+
+    /* decorative element – terminal style led */
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      width: 12px;
+      height: 12px;
+      border-radius: 30px;
+      background: #1ad4b0;
+      box-shadow: 0 0 15px #1ad4b0, 0 0 30px #0ff;
+      opacity: 0.7;
+    }
+
+    .login-box {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* selection color */
+    ::selection {
+      background: #2fa9c9;
+      color: #0b1217;
+    }
+
+    @media (max-width: 460px) {
+      .login-box {
+        padding: 2rem 1.5rem;
+      }
+      h2 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="login-box">
+      <h2>Login</h2>
+
+      <form action="dashboard.html">
+        <div class="input-box">
+          <input type="text" id="username" required>
+          <label for="username">Username</label>
+        </div>
+
+        <div class="input-box">
+          <input type="password" id="password" required>
+          <label for="password">Password</label>
+        </div>
+
+        <button type="submit">Login</button>
+
+        <p class="register">
+          Don't have an account? <a href="#">Register</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
