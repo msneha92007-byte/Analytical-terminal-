@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeoDash • full interactive demo</title>
+  <!-- Google Font & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Chart.js for graph modal -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #eef2f7 0%, #f9fcff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* header */
+    .header {
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 20px rgba(0,20,50,0.06);
+      padding: 0.9rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.6);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header h1 {
+      font-weight: 600;
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #1e2b4f, #2c3e6e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header h1 i {
+      background: linear-gradient(135deg, #3a5f8b, #1f3a5f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 2rem;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .avatar {
+      background: linear-gradient(145deg, #2b4a7a, #1d3557);
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 1.2rem;
+      box-shadow: 0 6px 12px rgba(27, 45, 75, 0.25);
+      cursor: default;
+    }
+
+    .logout {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(72, 99, 144, 0.2);
+      color: #1f3a5f;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.25s ease;
+      box-shadow: 0 4px 10px rgba(0, 20, 40, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logout i { font-size: 1rem; transition: transform 0.2s; }
+    .logout:hover {
+      background: #1f3a5f;
+      color: white;
+      border-color: #1f3a5f;
+      box-shadow: 0 8px 18px rgba(27, 55, 96, 0.25);
+    }
+    .logout:hover i { transform: translateX(3px); }
+
+    /* wrapper */
+    .dashboard-wrapper {
+      display: flex;
+      flex: 1;
+      padding: 2rem 2rem 2rem 1.5rem;
+      gap: 24px;
+    }
+
+    /* sidebar */
+    .side-nav {
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 32px;
+      padding: 2rem 1.2rem;
+      width: 260px;
+      box-shadow: 0 20px 35px -5px rgba(0,30,60,0.12);
+      border: 1px solid rgba(255,255,255,0.7);
+      height: fit-content;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      margin: 6px 0;
+      border-radius: 20px;
+      color: #2e405b;
+      font-weight: 500;
+      transition: 0.2s;
+      text-decoration: none;
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-size: 1rem;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-item i {
+      width: 28px;
+      font-size: 1.3rem;
+      color: #2c4c7a;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(115deg, #ffffffd6, #ffffff);
+      box-shadow: 0 6px 14px rgba(45, 80, 120, 0.15);
+      color: #1b2f4c;
+      font-weight: 600;
+      border-left: 4px solid #2b4a7a;
+    }
+
+    .nav-item:not(.active):hover {
+      background: rgba(255,255,255,0.7);
+      transform: translateX(4px);
+    }
+
+    /* main content sections */
+    .main-content {
+      flex: 1;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active-section {
+      display: block;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 26px;
+      margin-bottom: 30px;
+    }
+
+    /* card */
+    .card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(4px);
+      border-radius: 32px;
+      padding: 1.8rem 1.5rem;
+      box-shadow: 0 20px 35px -10px rgba(21, 45, 75, 0.15);
+      border: 1px solid rgba(255,255,255,0.7);
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 28px 40px -12px rgba(10, 40, 80, 0.25);
+      border-color: #ffffff;
+      background: rgba(255, 255, 255, 0.95);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 1.2rem;
+    }
+    .card-header i {
+      font-size: 2.3rem;
+      background: linear-gradient(145deg, #1e3b5a, #2b5580);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card h2 { font-size: 1.7rem; font-weight: 600; color: #152b44; letter-spacing: -0.3px; }
+    .card p { color: #4f658a; line-height: 1.5; margin-bottom: 1.5rem; }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 15px;
+      border-top: 2px dashed rgba(100, 130, 180, 0.2);
+      font-weight: 500;
+    }
+    .stat-badge {
+      background: linear-gradient(135deg, #ebf3ff, #dde9fc);
+      padding: 8px 16px;
+      border-radius: 40px;
+      color: #1d3f6e;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge-icon {
+      background: #2b4a7a;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    .sim-progress {
+      background: #e6edf8;
+      border-radius: 40px;
+      height: 12px;
+      width: 100%;
+      margin: 15px 0 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      width: 68%;
+      height: 100%;
+      background: linear-gradient(90deg, #2b4a7a, #4f7eb3);
+      border-radius: 40px;
+    }
+
+    /* action chips */
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .action-chip {
+      background: white;
+      border-radius: 40px;
+      padding: 8px 18px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #1b3c61;
+      border: 1px solid rgba(60, 100, 150, 0.2);
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .action-chip i { font-size: 0.9rem; color: #2b4a7a; }
+    .action-chip:hover {
+      background: #1b3c61;
+      color: white;
+      border-color: #1b3c61;
+    }
+    .action-chip:hover i { color: white; }
+
+    /* footnote */
+    .footnote {
+      margin-top: 40px;
+      text-align: center;
+      color: #6c7f9f;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(5px);
+      padding: 1rem;
+      border-radius: 60px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* modal styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10, 20, 40, 0.5);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: white;
+      border-radius: 40px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 30px 60px rgba(0,10,30,0.3);
+      border: 1px solid rgba(255,255,255,0.5);
+      position: relative;
+    }
+    .modal h2 {
+      font-size: 1.8rem;
+      color: #1b2f4c;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: #f0f4fc;
+      border: none;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #1b3c61;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+    .modal-close:hover {
+      background: #1b3c61;
+      color: white;
+    }
+
+    /* graph container */
+    .graph-container {
+      height: 250px;
+      margin: 20px 0;
+    }
+
+    /* form styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      color: #2e405b;
+      margin-bottom: 6px;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 12px 18px;
+      border: 1px solid #d0ddee;
+      border-radius: 30px;
+      font-size: 1rem;
+      background: #f9fcff;
+    }
+    .btn {
+      background: #1b3c61;
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .btn:hover { background: #13324f; }
+
+    .notification-list, .activity-list {
+      list-style: none;
+    }
+    .notification-list li, .activity-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #eef2f7;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    @media (max-width: 850px) {
+      .dashboard-wrapper { flex-direction: column; padding: 1.5rem; }
+      .side-nav { width: 100%; display: flex; flex-wrap: wrap; gap: 5px; padding: 1rem; }
+      .nav-item { flex: 1 0 auto; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <h1><i class="fas fa-rocket"></i> <span>NeoDash</span></h1>
+  <div class="user-profile">
+    <div class="avatar">JD</div>
+    <button class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+</header>
+
+<div class="dashboard-wrapper">
+  <!-- sidebar navigation -->
+  <nav class="side-nav">
+    <a href="#" class="nav-item active" data-section="overview"><i class="fas fa-chart-pie"></i> <span>Overview</span></a>
+    <a href="#" class="nav-item" data-section="livedata"><i class="fas fa-database"></i> <span>Live data</span></a>
+    <a href="#" class="nav-item" data-section="citysim"><i class="fas fa-car-side"></i> <span>City Sim</span></a>
+    <a href="#" class="nav-item" data-section="settings"><i class="fas fa-sliders-h"></i> <span>Settings</span></a>
+    <a href="#" class="nav-item" data-section="reports"><i class="fas fa-history"></i> <span>Reports</span></a>
+  </nav>
+
+  <!-- main content: multiple sections -->
+  <main class="main-content">
+    <!-- OVERVIEW SECTION (default) -->
+    <div id="overview-section" class="section active-section">
+      <div class="dashboard-grid">
+        <!-- card 1 - Live data summary -->
+        <div class="card">
+          <div class="card-header"><i class="fas fa-satellite-dish"></i><h2>Live data</h2></div>
+          <p>Real‑time city metrics & streaming analytics.</p>
+          <div class="stat-row">
+            <span class="stat-badge"><span class="badge-icon">📡</span> 1.4k events/s</span>
+            <span class="stat-badge"><span class="badge-icon">🌡️</span> 22°C</span>
+          </div>
+          <div class="quick-actions">
+            <a class="action-chip" onclick="openModal('graphModal')"><i class="fas fa-chart-line"></i> View graphs <i class="fas fa-arrow-right"></i></a>
+            <a class="action-chip" onclick="openModal('exportModal')"><i class="fas fa-download"></i> Export</a>
+          </div>
+        </div>
+        <!-- card 2 - City simulation summary -->
+        <div class="card">
+          <div class="card-header"><i class="fas fa-map-marked-alt"></i><h2>City simulation</h2></div>
+          <p>Autorickshaw fleet · route optimization.</p>
+          <div class="sim-progress"><div class="progress-fill"></div></div>
+          <div style="display: flex; justify-content: space-between; color:#1f3a5f; margin-bottom: 12px;">
+            <span><i class="fas fa-flag-checkered"></i> 68% simulated</span>
+            <span><i class="fas fa-clock"></i> 4 min left</span>
+          </div>
+          <div class="quick-actions">
+            <a class="action-chip" onclick="openModal('fleetModal')"><i class="fas fa-route"></i> Manage fleet <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+        <!-- card 3 - Settings summary -->
+        <div class="card">
+          <div class="card-header"><i class="fas fa-user-cog"></i><h2>Settings</h2></div>
+          <p>Profile, preferences & notifications.</p>
+          <div class="quick-actions">
+            <a class="action-chip" onclick="openModal('editProfileModal')"><i class="fas fa-user-edit"></i> Edit profile</a>
+            <a class="action-chip" onclick="openModal('notificationsModal')"><i class="fas fa-bell"></i> Notifications</a>
+          </div>
+        </div>
+        <!-- card 4 - Activity summary -->
+        <div class="card">
+          <div class="card-header"><i class="fas fa-list-ul"></i><h2>Activity</h2></div>
+          <ul style="list-style: none; color: #2a405e;">
+            <li style="padding: 8px 0; display: flex; gap:12px;"><i class="fas fa-circle" style="font-size: 0.5rem; align-self: center; color: #3f77bb;"></i> Trip #2291 completed <span style="margin-left: auto; font-size:0.8rem;">2 min ago</span></li>
+            <li style="padding: 8px 0; display: flex; gap:12px;"><i class="fas fa-circle" style="font-size: 0.5rem; align-self: center; color: #3f77bb;"></i> New driver onboarded <span style="margin-left: auto; font-size:0.8rem;">1h ago</span></li>
+            <li style="padding: 8px 0; display: flex; gap:12px;"><i class="fas fa-circle" style="font-size: 0.5rem; align-self: center; color: #3f77bb;"></i> Zone C congestion alert <span style="margin-left: auto; font-size:0.8rem;">12:30</span></li>
+          </ul>
+          <a class="action-chip" style="margin-top: 10px; width: fit-content;" onclick="openModal('activityModal')"><i class="fas-regular fa-eye"></i> view all activity <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="footnote"><i class="fas fa-circle" style="color: #28a745;"></i> all systems operational · last sync 2 seconds ago</div>
+    </div>
+
+    <!-- LIVE DATA SECTION (empty for brevity, but we can reuse cards or show different) -->
+    <div id="livedata-section" class="section">
+      <div class="dashboard-grid">
+        <div class="card"><h2>Live metrics</h2><p>Detailed graphs and export options.</p><div class="quick-actions"><a class="action-chip" onclick="openModal('graphModal')">View graphs</a><a class="action-chip" onclick="openModal('exportModal')">Export</a></div></div>
+      </div>
+    </div>
+    <!-- CITY SIM SECTION -->
+    <div id="citysim-section" class="section">
+      <div class="dashboard-grid">
+        <div class="card"><h2>Fleet control</h2><p>Manage rickshaws and routes.</p><a class="action-chip" onclick="openModal('fleetModal')">Manage fleet</a></div>
+      </div>
+    </div>
+    <!-- SETTINGS SECTION -->
+    <div id="settings-section" class="section">
+      <div class="dashboard-grid">
+        <div class="card"><h2>Profile settings</h2><a class="action-chip" onclick="openModal('editProfileModal')">Edit profile</a><a class="action-chip" onclick="openModal('notificationsModal')">Notifications</a></div>
+      </div>
+    </div>
+    <!-- REPORTS SECTION -->
+    <div id="reports-section" class="section">
+      <div class="dashboard-grid">
+        <div class="card"><h2>Full activity log</h2><a class="action-chip" onclick="openModal('activityModal')">View all activity</a></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODALS (further options) -->
+<!-- Graph Modal -->
+<div id="graphModal" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('graphModal')"><i class="fas fa-times"></i></button>
+    <h2><i class="fas fa-chart-line"></i> Live Data Graphs</h2>
+    <div class="graph-container">
+      <canvas id="myChart"></canvas>
+    </div>
+    <p>Real-time events per second (last 24h).</p>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div id="exportModal" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('exportModal')"><i class="fas fa-times"></i></button>
+    <h2><i class="fas fa-download"></i> Export Options</h2>
+    <p>Choose format:</p>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 20px 0;">
+      <button class="btn" onclick="alert('Exporting as CSV')">CSV</button>
+      <button class="btn" onclick="alert('Exporting as JSON')">JSON</button>
+      <button class="btn" onclick="alert('Exporting as PDF')">PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('editProfileModal')"><i class="fas fa-times"></i></button>
+    <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+    <form onsubmit="event.preventDefault(); alert('Profile updated (demo)'); closeModal('editProfileModal');">
+      <div class="form-group"><label>Full name</label><input type="text" value="John Doe"></div>
+      <div class="form-group"><label>Email</label><input type="email" value="john.doe@example.com"></div>
+      <div class="form-group"><label>Bio</label><textarea rows="3">Dashboard enthusiast.</textarea></div>
+      <button type="submit" class="btn">Save changes</button>
+    </form>
+  </div>
+</div>
+
+<!-- Notifications Modal -->
+<div id="notificationsModal" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('notificationsModal')"><i class="fas fa-times"></i></button>
+    <h2><i class="fas fa-bell"></i> Notifications</h2>
+    <ul class="notification-list">
+      <li><i class="fas fa-circle" style="color:#2b4a7a; font-size:0.5rem;"></i> New comment on your trip <small>5 min ago</small></li>
+      <li><i class="fas fa-circle" style="color:#2b4a7a; font-size:0.5rem;"></i> Driver bonus calculated <small>1 hour ago</small></li>
+      <li><i class="fas fa-circle" style="color:#2b4a7a; font-size:0.5rem;"></i> System update v2.5.0 <small>yesterday</small></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Activity Modal (view all) -->
+<div id="activityModal" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('activityModal')"><i class="fas fa-times"></i></button>
+    <h2><i class="fas fa-history"></i> Full Activity Log</h2>
+    <ul class="activity-list">
+      <li><i class="fas fa-check-circle" style="color:#28a745;"></i> Trip #2291 completed <span style="margin-left: auto;">2 min ago</span></li>
+      <li><i class="fas fa-user-plus" style="color:#2b4a7a;"></i> New driver onboarded <span>1h ago</span></li>
+      <li><i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Zone C congestion alert <span>12:30</span></li>
+      <li><i class="fas fa-download" style="color:#1f3a5f;"></i> Report exported <span>yesterday</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Fleet Management Modal (for city sim) -->
+<div id="fleetModal" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('fleetModal')"><i class="fas fa-times"></i></button>
+    <h2><i class="fas fa-truck"></i> Fleet Management</h2>
+    <p>Total rickshaws: 1,240</p>
+    <p>Active: 890 | Idle: 350</p>
+    <div class="quick-actions">
+      <a class="action-chip" onclick="alert('Dispatch optimization started')">Optimize routes</a>
+      <a class="action-chip" onclick="alert('Maintenance schedule')">Schedule maintenance</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Sidebar navigation: switch sections
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      // remove active class from all nav items
+      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+      this.classList.add('active');
+
+      // get section id
+      const section = this.dataset.section; // overview, livedata, etc.
+      // hide all sections
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active-section'));
+      // show selected section
+      document.getElementById(section + '-section').classList.add('active-section');
+    });
+  });
+
+  // Modal functions
+  function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'flex';
+    // If graph modal, initialize chart (only once)
+    if (modalId === 'graphModal' && !window.chartInitialized) {
+      setTimeout(() => {
+        const ctx = document.getElementById('myChart')?.getContext('2d');
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+              datasets: [{
+                label: 'Events/s',
+                data: [1200, 1350, 1900, 2250, 2100, 1800],
+                borderColor: '#2b4a7a',
+                backgroundColor: 'rgba(43,74,122,0.1)',
+                tension: 0.3
+              }]
+            }
+          });
+          window.chartInitialized = true;
+        }
+      }, 100);
+    }
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+  }
+
+  // Close modal when clicking outside content
+  window.onclick = function(event) {
+    if (event.target.classList.contains('modal-overlay')) {
+      event.target.style.display = 'none';
+    }
+  };
+
+  // Logout function
+  function logout() {
+    if (confirm('Ready to leave?')) {
+      alert('🔒 Logged out (demo).');
+    }
+  }
+
+  // Ensure modals are hidden on load
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+  });
+</script>
+
+<!-- ensure chart initialization only once even if modal reopened -->
+<style>.modal-overlay { display: none; }</style>
+</body>
+</html>
